@@ -7,8 +7,10 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -19,25 +21,36 @@ const val OPEN_DOCUMENT_TREE = 103
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    val viewModel: StorageViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater).apply {
+            lifecycleOwner = this@MainActivity
+            viewmodel = viewModel
+        }
         setContentView(binding.root)
-        binding.createBtn.setOnClickListener {
+        subscribeUi()
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun subscribeUi() {
+        viewModel.fileCreate.observe(this, Observer {
             val fileName = binding.fileName.text.toString()
             createFile(fileName)
-        }
-        binding.writeBtn.setOnClickListener {
+        })
+        viewModel.fileWrite.observe(this, Observer {
             writeFile()
-        }
-        binding.readBtn.setOnClickListener {
+        })
+        viewModel.fileRead.observe(this, Observer {
             readFile()
-        }
-        binding.openDirectory.setOnClickListener {
+        })
+        viewModel.openDirectory.observe(this, Observer {
             openDirectory()
-        }
+        })
+
     }
 
     private fun readFile() {
