@@ -41,8 +41,6 @@ class MainActivity : AppCompatActivity() {
         val readIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "text/plain"
-            //  putExtra(Intent.EXTRA_TITLE, name)
-
         }
         startActivityForResult(readIntent, READ_DOCUMENT)
     }
@@ -51,8 +49,6 @@ class MainActivity : AppCompatActivity() {
         val writeIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "text/plain"
-            //  putExtra(Intent.EXTRA_TITLE, name)
-
         }
         startActivityForResult(writeIntent, WRITE_DOCUMENT)
     }
@@ -69,30 +65,23 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         var fileUri: Uri? = null
-        if (requestCode == Activity.RESULT_OK) {
-            if (resultCode == CREATE_DOCUMENT) {
-                if (data != null) {
-                    Log.i("STORAGE TAG", "file successfully created")
-                    Toast.makeText(this,"file successfully created",Toast.LENGTH_SHORT).show()
-                }
-            } else if (resultCode == WRITE_DOCUMENT) {
-                if (data != null) {
-                    fileUri = data.data!!
-                    writeExternalFile(fileUri)
-                    Log.i("STORAGE TAG", "file successfully wrote")
-                }
-            } else if (resultCode == READ_DOCUMENT) {
-                if (data != null) {
-                    fileUri = data.data!!
-                    try {
-                        val readData = readExternalFile(fileUri)
-                        Log.i("STORAGE TAG", "File data::$readData")
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-
-
-                }
+        if (requestCode == CREATE_DOCUMENT && resultCode == RESULT_OK) {
+            Log.i("STORAGE TAG", "file successfully created")
+        } else if (requestCode == WRITE_DOCUMENT && resultCode == RESULT_OK) {
+            if (data != null) {
+                fileUri = data.data
+            }
+            writeExternalFile(fileUri!!)
+        } else if (requestCode == READ_DOCUMENT && resultCode == RESULT_OK) {
+            if (data != null) {
+                fileUri = data.data
+            }
+            try {
+                val readData = readExternalFile(fileUri!!)
+                Log.i("STORAGE TAG", "File data::$readData")
+                Toast.makeText(this,"$fileUri",Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -109,7 +98,6 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     @Throws(IOException::class)
